@@ -53,7 +53,7 @@ uvicorn main:app --reload
 
 The backend will run by default at `http://localhost:8000`.
 
-```
+---
 
 ## 🌐 Frontend Setup
 
