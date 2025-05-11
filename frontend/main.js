@@ -29,62 +29,36 @@ colorInput.addEventListener('input', function (evt) {
 });
 
 
-let oldX = window.screenX;
-let oldY = window.screenY;
+canvas.addEventListener("mousedown", startDrawing, false);
+canvas.addEventListener("mousemove", draw, false);
+canvas.addEventListener("mouseup", stopDrawing, false);
 
+function startDrawing(e) {
+    isDrawing = true;
+    lastX = e.clientX - canvas.offsetLeft;
+    lastY = e.clientY - canvas.offsetTop;
+    canvasContext.beginPath();
+    canvasContext.moveTo(lastX, lastY);
+}
 
-const checkPosition = () => {
-    // console.log({ x: window.outerWidth, y: window.outerHeight })
-    console.log(window.inner);
+function draw(e) {
+    if (!isDrawing) return;
+    var x = e.clientX - canvas.offsetLeft;
+    var y = e.clientY - canvas.offsetTop;
+    canvasContext.strokeStyle = color
+    canvasContext.lineWidth = 3;
+    websocket.send(JSON.stringify({ x: x, y: y, uid: uid, lastX: lastX, lastY: lastY, color: color }))
+    canvasContext.lineTo(x, y);
+    canvasContext.stroke();
+    lastX = x;
+    lastY = y;
+}
 
-
-    if (oldX !== window.screenX || oldY !== window.screenY) {
-        console.log('Browser window was moved!');
-        oldX = window.screenX;
-        oldY = window.screenY;
-        console.log({ oldX, oldY });
-    }
-};
-
-setInterval(checkPosition, 100);
-
-canvasContext.beginPath();
-centerX = canvas.clientWidth / 2;
-centerY = canvas.clientHeight / 2;
-canvasContext.arc(centerX, centerY, 20, 0, 2 * Math.PI);
-canvasContext.fill()
-canvasContext.stroke(); // Or ctx.fill() for a filled circle
-
-// canvas.addEventListener("mousedown", startDrawing, false);
-// canvas.addEventListener("mousemove", draw, false);
-// canvas.addEventListener("mouseup", stopDrawing, false);
-
-// function startDrawing(e) {
-//     isDrawing = true;
-//     lastX = e.clientX - canvas.offsetLeft;
-//     lastY = e.clientY - canvas.offsetTop;
-//     canvasContext.beginPath();
-//     canvasContext.moveTo(lastX, lastY);
-// }
-
-// function draw(e) {
-//     if (!isDrawing) return;
-//     var x = e.clientX - canvas.offsetLeft;
-//     var y = e.clientY - canvas.offsetTop;
-//     canvasContext.strokeStyle = color
-//     canvasContext.lineWidth = 3;
-//     websocket.send(JSON.stringify({ x: x, y: y, uid: uid, lastX: lastX, lastY: lastY, color: color }))
-//     canvasContext.lineTo(x, y);
-//     canvasContext.stroke();
-//     lastX = x;
-//     lastY = y;
-// }
-
-// function stopDrawing() {
-//     isDrawing = false;
-//     canvasContext.stroke();
-//     canvasContext.beginPath();
-// }
+function stopDrawing() {
+    isDrawing = false;
+    canvasContext.stroke();
+    canvasContext.beginPath();
+}
 
 function generateRandomId(length = 10) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
